@@ -27,8 +27,8 @@ class StockReportApp:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title('BLP Stock Report Generator')
-        self.root.geometry('900x1000')
-        self.root.minsize(850, 900)
+        self.root.geometry('1000x900')
+        self.root.minsize(800, 700)
         self.root.configure(bg=BG_DARK)
 
         self.var_source = tk.StringVar()
@@ -50,23 +50,23 @@ class StockReportApp:
         self.main_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
-        container = tk.Frame(self.main_canvas, bg=BG_DARK, padx=20, pady=15)
+        container = tk.Frame(self.main_canvas, bg=BG_DARK, padx=15, pady=10)
         self.main_canvas.create_window((0, 0), window=container, anchor='nw')
         
         container.bind("<Configure>", lambda e: self.main_canvas.configure(scrollregion=self.main_canvas.bbox("all")))
 
         # Title
         title_frame = tk.Frame(container, bg=BG_DARK)
-        title_frame.pack(fill=tk.X, pady=(0, 10))
+        title_frame.pack(fill=tk.X, pady=(0, 15))
 
-        tk.Label(title_frame, text='📊', font=('Segoe UI Emoji', 24),
-                 bg=BG_DARK, fg=FG_TITLE).pack(side=tk.LEFT, padx=(0, 8))
+        tk.Label(title_frame, text='📊', font=('Segoe UI Emoji', 28),
+                 bg=BG_DARK, fg=FG_TITLE).pack(side=tk.LEFT, padx=(0, 10))
         title_text = tk.Frame(title_frame, bg=BG_DARK)
-        title_text.pack(side=tk.LEFT)
+        title_text.pack(side=tk.LEFT, fill=tk.X, expand=True)
         tk.Label(title_text, text='BLP Stock Report Generator',
-                 font=('Segoe UI', 16, 'bold'), bg=BG_DARK, fg=FG_TITLE).pack(anchor='w')
+                 font=('Segoe UI', 18, 'bold'), bg=BG_DARK, fg=FG_TITLE).pack(anchor='w')
         tk.Label(title_text, text='Auto-match file ke sheet | FEFO Sales | Proses Semua Sheet Sekaligus',
-                 font=('Segoe UI', 9), bg=BG_DARK, fg=FG_LABEL).pack(anchor='w')
+                 font=('Segoe UI', 10), bg=BG_DARK, fg=FG_LABEL).pack(anchor='w')
 
         # File Utama
         self._section_label(container, '📁 File Utama (Wajib)')
@@ -74,19 +74,20 @@ class StockReportApp:
         self._file_row(card1, 'File Sumber (.xlsx)', self.var_source, 0)
         self._file_row(card1, 'File Output (opsional)', self.var_output, 1, save=True)
 
-        tk.Button(card1, text='📋 Load Sheets', font=('Segoe UI', 9),
-                  bg=BG_INPUT, fg=FG_TEXT, relief='flat', cursor='hand2',
-                  command=self._load_sheets).grid(row=2, column=0, sticky='w', padx=8, pady=4)
+        btn_load = tk.Button(card1, text='📋 Load Sheets', font=('Segoe UI', 10, 'bold'),
+                   bg=BG_INPUT, fg=FG_TEXT, activebackground=BG_CARD, relief='flat', cursor='hand2',
+                   command=self._load_sheets, padx=10, pady=5)
+        btn_load.grid(row=2, column=0, columnspan=2, sticky='ew', padx=8, pady=8)
 
         # File Input per Sheet
         self._section_label(container, '📂 File Input per Sheet (Pilih Satu-Satu)')
         self.input_card = self._card(container)
         
         self.input_files_container = tk.Frame(self.input_card, bg=BG_CARD)
-        self.input_files_container.pack(fill=tk.X, padx=5, pady=5)
+        self.input_files_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        tk.Label(self.input_card, text='(Klik SM/Odoo utk pilih file, lalu Load Sheets dulu)', font=('Segoe UI', 8),
-                 bg=BG_CARD, fg=FG_LABEL).pack(anchor='w', padx=8, pady=(0, 5))
+        tk.Label(self.input_card, text='💡 Klik SM/Odoo utk pilih file, lalu Load Sheets dulu', 
+                 font=('Segoe UI', 9), bg=BG_CARD, fg=FG_LABEL).pack(anchor='w', padx=8, pady=(0, 5))
 
         # Sheet selection
         self._section_label(container, '📋 Pilih Sheet yang Diproses')
@@ -94,7 +95,7 @@ class StockReportApp:
         sheet_frame = tk.Frame(sheet_card, bg=BG_CARD)
         sheet_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        self.sheet_canvas = tk.Canvas(sheet_frame, bg=BG_CARD, height=150, highlightthickness=0)
+        self.sheet_canvas = tk.Canvas(sheet_frame, bg=BG_CARD, height=180, highlightthickness=0)
         self.sheet_scroll = tk.Scrollbar(sheet_frame, orient="vertical", command=self.sheet_canvas.yview)
         self.sheet_inner = tk.Frame(self.sheet_canvas, bg=BG_CARD)
         self.sheet_canvas.create_window((0, 0), window=self.sheet_inner, anchor='nw')
@@ -105,58 +106,61 @@ class StockReportApp:
         self.sheet_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.sheet_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         
-        tk.Label(sheet_card, text='(Centang sheet yang mau diproses, kosongkan = semua)', font=('Segoe UI', 8),
-                 bg=BG_CARD, fg=FG_LABEL).pack(anchor='w', padx=8, pady=(0, 5))
+        tk.Label(sheet_card, text='💡 Centang sheet yang mau diproses, kosongkan = semua', 
+                 font=('Segoe UI', 9), bg=BG_CARD, fg=FG_LABEL).pack(anchor='w', padx=8, pady=(0, 5))
 
         # Process button
         btn_frame = tk.Frame(container, bg=BG_DARK)
-        btn_frame.pack(fill=tk.X, pady=(10, 5))
+        btn_frame.pack(fill=tk.X, pady=(15, 8))
 
         self.btn_process = tk.Button(
-            btn_frame, text='🚀  PROSES', font=('Segoe UI', 11, 'bold'),
+            btn_frame, text='🚀  PROSES LAPORAN', font=('Segoe UI', 12, 'bold'),
             bg=ACCENT, fg='white', activebackground=ACCENT_HOVER, activeforeground='white',
-            relief='flat', cursor='hand2', padx=30, pady=8,
+            relief='flat', cursor='hand2', padx=40, pady=12,
             command=self._on_process
         )
-        self.btn_process.pack(expand=True)
+        self.btn_process.pack(expand=True, fill=tk.X)
 
         # Progress
         style = ttk.Style()
         style.theme_use('clam')
         style.configure('Custom.Horizontal.TProgressbar', background=SUCCESS, troughcolor=BG_INPUT)
         self.progress = ttk.Progressbar(container, style='Custom.Horizontal.TProgressbar', mode='indeterminate', length=400)
-        self.progress.pack(fill=tk.X, pady=(5, 5))
+        self.progress.pack(fill=tk.X, pady=(5, 8))
 
         # Log
         self._section_label(container, '📋 Log Output')
-        self.log = scrolledtext.ScrolledText(container, height=8, font=('Consolas', 9),
+        self.log = scrolledtext.ScrolledText(container, height=10, font=('Consolas', 10),
                                               bg=BG_INPUT, fg=FG_TEXT, insertbackground=FG_TEXT,
                                               relief='flat', bd=0, wrap=tk.WORD, state=tk.DISABLED)
         self.log.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
 
-        self.log.tag_configure('error', foreground='#ff6b6b')
-        self.log.tag_configure('success', foreground=SUCCESS)
-        self.log.tag_configure('warn', foreground=WARNING)
-        self.log.tag_configure('info', foreground=FG_LABEL)
+        self.log.tag_configure('error', foreground='#ff6b6b', font=('Consolas', 10, 'bold'))
+        self.log.tag_configure('success', foreground=SUCCESS, font=('Consolas', 10, 'bold'))
+        self.log.tag_configure('warn', foreground=WARNING, font=('Consolas', 10))
+        self.log.tag_configure('info', foreground=FG_LABEL, font=('Consolas', 10))
 
     def _section_label(self, parent, text):
-        tk.Label(parent, text=text, font=('Segoe UI', 10, 'bold'),
-                 bg=BG_DARK, fg=FG_TITLE, anchor='w').pack(fill=tk.X, pady=(10, 3))
+        tk.Label(parent, text=text, font=('Segoe UI', 11, 'bold'),
+                 bg=BG_DARK, fg=FG_TITLE, anchor='w').pack(fill=tk.X, pady=(12, 5))
 
     def _card(self, parent):
-        card = tk.Frame(parent, bg=BG_CARD, padx=10, pady=8, highlightbackground=BORDER, highlightthickness=1)
-        card.pack(fill=tk.X, pady=(0, 2))
+        card = tk.Frame(parent, bg=BG_CARD, padx=12, pady=10, highlightbackground=BORDER, highlightthickness=1)
+        card.pack(fill=tk.X, pady=(0, 8))
         return card
 
     def _file_row(self, parent, label, var, row, save=False):
-        tk.Label(parent, text=label + ':', font=('Segoe UI', 9),
-                 bg=BG_CARD, fg=FG_LABEL, width=20, anchor='w').grid(row=row, column=0, sticky='w', padx=8, pady=4)
-        entry = tk.Entry(parent, textvariable=var, font=('Segoe UI', 9),
+        # Configure grid weights
+        parent.grid_columnconfigure(1, weight=1)
+        
+        tk.Label(parent, text=label + ':', font=('Segoe UI', 10),
+                 bg=BG_CARD, fg=FG_LABEL, width=22, anchor='w').grid(row=row, column=0, sticky='w', padx=8, pady=6)
+        entry = tk.Entry(parent, textvariable=var, font=('Segoe UI', 10),
                         bg=BG_INPUT, fg=FG_TEXT, insertbackground=FG_TEXT, relief='flat', bd=0)
-        entry.grid(row=row, column=1, sticky='ew', padx=5, pady=4, ipady=4)
+        entry.grid(row=row, column=1, sticky='ew', padx=5, pady=6, ipady=6)
         cmd = self._make_save_dialog(var) if save else self._make_open_dialog(var)
-        tk.Button(parent, text='📂', font=('Segoe UI Emoji', 10), bg=BG_CARD, fg=FG_TEXT,
-                 relief='flat', cursor='hand2', activebackground=BG_INPUT, command=cmd).grid(row=row, column=2, padx=5, pady=4)
+        tk.Button(parent, text='📂', font=('Segoe UI Emoji', 11), bg=BG_CARD, fg=FG_TEXT,
+                 relief='flat', cursor='hand2', activebackground=BG_INPUT, command=cmd).grid(row=row, column=2, padx=5, pady=6)
 
     def _make_open_dialog(self, var):
         def handler():
@@ -181,11 +185,11 @@ class StockReportApp:
     def _load_sheets(self):
         source = self.var_source.get().strip().strip('"')
         if not source:
-            messagebox.showwarning('Peringatan', 'Pilih file sumber terlebih dahulu!')
+            messagebox.showwarning('⚠️ Peringatan', 'Pilih file sumber terlebih dahulu!')
             return
         src = Path(source).expanduser().resolve()
         if not src.exists():
-            messagebox.showerror('Error', 'File tidak ditemukan!')
+            messagebox.showerror('❌ Error', 'File tidak ditemukan!')
             return
         try:
             wb = opxl.load_workbook(src, read_only=True)
@@ -194,15 +198,15 @@ class StockReportApp:
             for sheet_name in wb.sheetnames:
                 var = tk.BooleanVar()
                 cb = tk.Checkbutton(self.sheet_inner, text=sheet_name, variable=var,
-                                  font=('Segoe UI', 9), bg=BG_CARD, fg=FG_TEXT,
-                                  selectcolor=BG_INPUT, anchor='w')
-                cb.pack(fill=tk.X)
+                                  font=('Segoe UI', 10), bg=BG_CARD, fg=FG_TEXT,
+                                  selectcolor=BG_INPUT, anchor='w', padx=8, pady=4)
+                cb.pack(fill=tk.X, padx=5, pady=2)
                 self.checkboxes.append((sheet_name, var))
             self._build_input_files_ui()
-            self._log(f'Loaded {len(wb.sheetnames)} sheets', 'success')
+            self._log(f'✅ Loaded {len(wb.sheetnames)} sheets', 'success')
             wb.close()
         except Exception as e:
-            messagebox.showerror('Error', f'Gagal load sheets: {str(e)}')
+            messagebox.showerror('❌ Error', f'Gagal load sheets: {str(e)}')
 
     def _build_input_files_ui(self):
         for widget in self.input_files_container.winfo_children(): widget.destroy()
@@ -210,26 +214,26 @@ class StockReportApp:
         self.input_file_vars = {}
         
         for sheet_name, var in self.checkboxes:
-            sheet_frame = tk.Frame(self.input_files_container, bg=BG_DARK, pady=3)
-            sheet_frame.pack(fill=tk.X, padx=5)
+            sheet_frame = tk.Frame(self.input_files_container, bg=BG_CARD, pady=4)
+            sheet_frame.pack(fill=tk.X, padx=5, pady=2)
             
-            tk.Label(sheet_frame, text=f'{sheet_name}:', font=('Segoe UI', 9, 'bold'),
-                     bg=BG_DARK, fg=FG_TEXT, width=18, anchor='w').pack(side=tk.LEFT)
+            tk.Label(sheet_frame, text=f'{sheet_name}:', font=('Segoe UI', 10, 'bold'),
+                     bg=BG_CARD, fg=FG_TEXT, width=20, anchor='w').pack(side=tk.LEFT, padx=(0, 5))
             
             sm_var = tk.StringVar()
             odoo_var = tk.StringVar()
             self.input_file_vars[sheet_name] = {'stock_masuk': sm_var, 'odoo': odoo_var}
             
-            tk.Button(sheet_frame, text='SM', font=('Segoe UI', 8),
-                      bg=BG_INPUT, fg=FG_TEXT, relief='flat', cursor='hand2',
-                      command=lambda v=sm_var: self._select_input_file(v, 'Stock Masuk')).pack(side=tk.LEFT, padx=2)
+            tk.Button(sheet_frame, text='📥 SM', font=('Segoe UI', 9, 'bold'),
+                      bg=BG_INPUT, fg=FG_TEXT, relief='flat', cursor='hand2', padx=8, pady=3,
+                      command=lambda v=sm_var: self._select_input_file(v, 'Stock Masuk')).pack(side=tk.LEFT, padx=3)
             
-            tk.Button(sheet_frame, text='Odoo', font=('Segoe UI', 8),
-                      bg=BG_INPUT, fg=FG_TEXT, relief='flat', cursor='hand2',
-                      command=lambda v=odoo_var: self._select_input_file(v, 'Odoo')).pack(side=tk.LEFT, padx=2)
+            tk.Button(sheet_frame, text='📦 Odoo', font=('Segoe UI', 9, 'bold'),
+                      bg=BG_INPUT, fg=FG_TEXT, relief='flat', cursor='hand2', padx=8, pady=3,
+                      command=lambda v=odoo_var: self._select_input_file(v, 'Odoo')).pack(side=tk.LEFT, padx=3)
             
-            tk.Label(sheet_frame, text='(belum dipilih)', font=('Segoe UI', 8),
-                     bg=BG_DARK, fg=FG_LABEL, anchor='w').pack(side=tk.LEFT, padx=5)
+            tk.Label(sheet_frame, text='(belum dipilih)', font=('Segoe UI', 9),
+                     bg=BG_CARD, fg=FG_LABEL, anchor='w').pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
 
     def _select_input_file(self, var, file_type):
         path = filedialog.askopenfilename(filetypes=[('Excel/CSV', '*.xlsx *.xls *.csv'), ('All', '*.*')])
@@ -241,7 +245,7 @@ class StockReportApp:
                     if hasattr(child, 'configure'):
                         try:
                             if child.cget('text') == '(belum dipilih)':
-                                child.configure(text=fname[:20], fg=SUCCESS)
+                                child.configure(text=fname[:25], fg=SUCCESS)
                         except: pass
 
     def _match_files_to_sheets(self):
@@ -294,10 +298,10 @@ class StockReportApp:
     def _on_process(self):
         if self.processing: return
         source = self.var_source.get().strip().strip('"')
-        if not source: self._log('[ERROR] File sumber harus diisi!', 'error'); return
+        if not source: self._log('[❌ ERROR] File sumber harus diisi!', 'error'); return
         
         src = Path(source).expanduser().resolve()
-        if not src.exists(): self._log(f'[ERROR] File tidak ditemukan: {src}', 'error'); return
+        if not src.exists(): self._log(f'[❌ ERROR] File tidak ditemukan: {src}', 'error'); return
         
         self.processing = True
         self.btn_process.configure(state=tk.DISABLED, text='⏳  MEMPROSES...')
@@ -309,13 +313,13 @@ class StockReportApp:
     def _finish_process(self):
         self.processing = False
         self.progress.stop()
-        self.btn_process.configure(state=tk.NORMAL, text='🚀  PROSES')
+        self.btn_process.configure(state=tk.NORMAL, text='🚀  PROSES LAPORAN')
 
     def _run_process(self, src: Path):
         try:
             self._process(src)
         except Exception as e:
-            self.root.after(0, self._log, f'[ERROR] {e}', 'error')
+            self.root.after(0, self._log, f'[❌ ERROR] {e}', 'error')
         finally:
             self.root.after(0, self._finish_process)
 
@@ -439,12 +443,12 @@ class StockReportApp:
         output_str = self.var_output.get().strip().strip('"')
         out = Path(output_str).expanduser().resolve() if output_str else guess_output_name(src)
 
-        self._log_safe('=' * 55)
-        self._log_safe('  PEMBUAT FILE LAPORAN STOCK BULAN BARU', 'info')
-        self._log_safe('=' * 55)
-        self._log_safe(f'  Sumber : {src.name}')
-        self._log_safe(f'  Output : {out.name}')
-        self._log_safe(f'  Sheets : {", ".join(target_sheets) if target_sheets else "SEMUA"}', 'info')
+        self._log_safe('=' * 60)
+        self._log_safe('  📊 PEMBUAT FILE LAPORAN STOCK BULAN BARU', 'info')
+        self._log_safe('=' * 60)
+        self._log_safe(f'  📁 Sumber : {src.name}')
+        self._log_safe(f'  💾 Output : {out.name}')
+        self._log_safe(f'  📋 Sheets : {", ".join(target_sheets) if target_sheets else "SEMUA"}', 'info')
 
         wb = opxl.load_workbook(src, data_only=False)
         wb_values = opxl.load_workbook(src, data_only=True)
@@ -457,7 +461,7 @@ class StockReportApp:
             ws = wb[sheet_name]
             if not is_branch_sheet(ws): continue
 
-            self._log_safe(f'\nMemproses: "{sheet_name}"...')
+            self._log_safe(f'\n  ▶️  Memproses: "{sheet_name}"...')
             summary['sheets'] += 1
 
             try:
@@ -494,7 +498,7 @@ class StockReportApp:
                         up, add = process_transfer(ws, headers, data, 'stock masuk', existing_max)
                         summary['sm_filled'] += up + add
                         existing_max = ws.max_row
-                        if up or add: self._log_safe(f'  → Stock Masuk: {up} update, {add} baru', 'success')
+                        if up or add: self._log_safe(f'      ✅ Stock Masuk: {up} update, {add} baru', 'success')
 
                 # Process Odoo
                 odoo_path = (vars.get('odoo') or tk.StringVar()).get()
@@ -505,12 +509,12 @@ class StockReportApp:
                         up, add = process_transfer(ws, headers, data, 'odoo', existing_max)
                         summary['odoo_filled'] += up + add
                         existing_max = ws.max_row
-                        if up or add: self._log_safe(f'  → Odoo: {up} update, {add} baru', 'success')
+                        if up or add: self._log_safe(f'      ✅ Odoo: {up} update, {add} baru', 'success')
 
                 add_formulas(ws, 3, ws.max_row)
 
             except Exception as e:
-                self._log_safe(f'  [ERROR] {e}', 'error')
+                self._log_safe(f'      ❌ ERROR: {e}', 'error')
 
         try:
             wb.calculation.fullCalcOnLoad = True
@@ -519,15 +523,15 @@ class StockReportApp:
         except: pass
 
         wb.save(out)
-        self._log_safe('\n' + '=' * 55)
-        self._log_safe('  RINGKASAN', 'info')
-        self._log_safe('=' * 55)
-        self._log_safe(f'  Sheet diproses : {summary["sheets"]}')
-        self._log_safe(f'  Baris di-reset : {summary["rows"]}')
-        if summary['sm_filled']: self._log_safe(f'  Stock Masuk    : {summary["sm_filled"]}')
-        if summary['odoo_filled']: self._log_safe(f'  Odoo         : {summary["odoo_filled"]}')
-        self._log_safe(f'\n  ✅ File dibuat : {out.name}', 'success')
-        self._log_safe('=' * 55)
+        self._log_safe('\n' + '=' * 60)
+        self._log_safe('  📋 RINGKASAN HASIL PROSES', 'info')
+        self._log_safe('=' * 60)
+        self._log_safe(f'  📊 Sheet diproses : {summary["sheets"]}')
+        self._log_safe(f'  🔄 Baris di-reset : {summary["rows"]}')
+        if summary['sm_filled']: self._log_safe(f'  📥 Stock Masuk    : {summary["sm_filled"]}', 'success')
+        if summary['odoo_filled']: self._log_safe(f'  📦 Odoo           : {summary["odoo_filled"]}', 'success')
+        self._log_safe(f'\n  ✅ File berhasil dibuat : {out.name}', 'success')
+        self._log_safe('=' * 60)
 
 
 def main():
